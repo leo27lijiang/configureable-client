@@ -1,6 +1,6 @@
 # configureable-client
 
-configureable-client是Databus(https://github.com/linkedin/databus)统一消费端的简易封装，提供配置文件的方式组织消费逻辑。
+configureable-client是Databus( https://github.com/linkedin/databus )统一消费端的简易封装，提供配置文件的方式组织消费逻辑。
 
 # 用法
 配置 client.properties 设置relay的相关配置。
