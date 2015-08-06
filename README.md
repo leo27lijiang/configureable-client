@@ -22,5 +22,6 @@ table:目标表名称
 db:oracle/mysql
 field中必须指定一个主键，并且唯一
 field中的type是java中的对象，基础类型/class，默认是java.lang.String
+field中alias是对源表中导出的字段名称与目标表不一致时的映射，alias的值代表源表导出的字段名称
 
 客户端只会执行与field定义相关的字段多余的字段会被忽略

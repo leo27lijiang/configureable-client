@@ -1,5 +1,6 @@
 package com.lefu.databus.client.util;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
@@ -102,7 +103,9 @@ public class VariableUtil {
 			Long time = (Long) value;
 			return new Date(time);
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
-			return (Byte) record.get(field.getName());
+			return (Byte) value;
+		} else if (type.equals(BigDecimal.class.getName())) {
+			return new BigDecimal(value.toString());
 		}
 		throw new RuntimeException("Not supported type " + field.getType());
 	}
@@ -130,6 +133,8 @@ public class VariableUtil {
 			return Types.DATE;
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return Types.BIT;
+		} else if (type.equals(BigDecimal.class.getName())) {
+			return Types.DOUBLE;
 		}
 		throw new RuntimeException("Not supported type " + field.getType());
 	}
