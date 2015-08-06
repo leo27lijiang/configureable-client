@@ -93,13 +93,11 @@ public class VariableUtil {
 		} else if (type.equals(Integer.class.getName()) || type.equals("int")) {
 			return (Integer) value;
 		} else if (type.equals(Double.class.getName()) || type.equals("double")) {
-			Utf8 utf8 = (Utf8) value;
-			return Double.parseDouble(utf8.toString());
+			return (value instanceof Double) ? value : Double.parseDouble(value.toString());
 		} else if (type.equals(Float.class.getName()) || type.equals("float")) {
-			Utf8 utf8 = (Utf8) value;
-			return Float.parseFloat(utf8.toString());
+			return (value instanceof Float) ? value : Float.parseFloat(value.toString());
 		} else if (type.equals(Boolean.class.getName()) || type.equals("boolean")) {
-			return (Boolean) value;
+			return (value instanceof Boolean) ? value : Boolean.parseBoolean(value.toString());
 		} else if (type.equals(Date.class.getName())) {
 			Long time = (Long) value;
 			return new Date(time);

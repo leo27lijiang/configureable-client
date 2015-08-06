@@ -36,6 +36,7 @@ public class MysqlConsumeUnit extends AbstractConsumeUnit {
 			fields.deleteCharAt(fields.length() - 1);
 			values.deleteCharAt(values.length() - 1);
 			this.upsertSql = String.format(UPSERT_TEMPLATE, this.source.getTable(), fields.toString(), values.toString());
+			LOG.info("Generate mysql replace sql {}", this.upsertSql);
 		}
 		return this.upsertSql;
 	}
