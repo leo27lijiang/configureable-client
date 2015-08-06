@@ -99,8 +99,7 @@ public class VariableUtil {
 			Utf8 utf8 = (Utf8) value;
 			return Float.parseFloat(utf8.toString());
 		} else if (type.equals(Boolean.class.getName()) || type.equals("boolean")) {
-			Utf8 utf8 = (Utf8) value;
-			return Boolean.parseBoolean(utf8.toString());
+			return (Boolean) value;
 		} else if (type.equals(Date.class.getName())) {
 			Long time = (Long) value;
 			return new Date(time);
