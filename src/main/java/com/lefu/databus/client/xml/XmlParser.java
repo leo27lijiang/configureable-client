@@ -67,9 +67,11 @@ public abstract class XmlParser {
 				String fieldName = fieldNameAttr.getText();
 				Attribute fieldTypeAttr = fieldNode.attribute("type");
 				String type = (fieldTypeAttr != null ? fieldTypeAttr.getText() : String.class.getName());
+				Attribute fieldAliasAttr = fieldNode.attribute("alias");
+				String alias = (fieldAliasAttr != null ? fieldAliasAttr.getText() : null);
 				Attribute fieldPrimaryKeyAttr = fieldNode.attribute("primaryKey");
 				Boolean primaryKey = (fieldPrimaryKeyAttr != null ? new Boolean(fieldPrimaryKeyAttr.getText()) : new Boolean(false));
-				fields.add(new Field(fieldName, type, primaryKey));
+				fields.add(new Field(fieldName, type, alias, primaryKey));
 			}
 			sources.add(new Source(sourceName, sourceId, table, db, fields));
 		}

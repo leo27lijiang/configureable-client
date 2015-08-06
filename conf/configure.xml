@@ -2,7 +2,7 @@
 <configure>
 	<source name="com.lefu.boss.goods" id="40" table="goods" db="oracle">
 		<fields>
-			<field name="id" type="long" primaryKey="true"/>
+			<field name="id" alias="key" type="long" primaryKey="true"/>
 			<field name="name"/>
 			<field name="price" type="double"/>
 		</fields>

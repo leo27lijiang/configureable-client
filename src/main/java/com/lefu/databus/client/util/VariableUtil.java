@@ -81,7 +81,7 @@ public class VariableUtil {
 	 */
 	public static Object getRecordValue(Field field, GenericRecord record) {
 		String type = field.getType();
-		Object value = record.get(field.getName());
+		Object value = field.getAlias() != null ? record.get(field.getAlias()) : record.get(field.getName());
 		if (value == null) {
 			return null;
 		}
