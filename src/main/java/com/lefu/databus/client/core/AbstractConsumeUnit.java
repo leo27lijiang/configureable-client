@@ -94,9 +94,13 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 				}
 			}
 			int result = pstmt.executeUpdate();
-			if (result != 1) {
+			int rows = 1;
+			if (this.source.getDb() == Source.ORACLE) {//Oracle merge affected rows is 2
+				rows = 2;
+			}
+			if (result != rows) {
 				LOG.warn("Upsert rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(),
-						record.get(primaryKey.getName()));
+						record.get(primaryKey.getAlias() != null ? primaryKey.getAlias() : primaryKey.getName()));
 			}
 		} finally {
 			if (pstmt != null) {
