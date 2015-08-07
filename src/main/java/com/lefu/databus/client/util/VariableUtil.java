@@ -103,9 +103,11 @@ public class VariableUtil {
 			Long time = (Long) value;
 			return new Date(time);
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
-			return (Byte) value;
+			return (value instanceof Byte) ? value : Byte.parseByte(value.toString());
 		} else if (type.equals(BigDecimal.class.getName())) {
 			return new BigDecimal(value.toString());
+		} else if (type.equals(Character.class.getName()) || type.equals("char")) {
+			return (Character) value;
 		}
 		throw new RuntimeException("Not supported type " + field.getType());
 	}
@@ -134,7 +136,9 @@ public class VariableUtil {
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return Types.BIT;
 		} else if (type.equals(BigDecimal.class.getName())) {
-			return Types.DOUBLE;
+			return Types.DECIMAL;
+		} else if (type.equals(Character.class.getName()) || type.equals("char")) {
+			return Types.CHAR;
 		}
 		throw new RuntimeException("Not supported type " + field.getType());
 	}
