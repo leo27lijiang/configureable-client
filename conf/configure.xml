@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configure>
-	<source name="com.lefu.boss.goods" id="40" table="goods" db="oracle">
+	<source name="com.lefu.boss.goods" id="40" table="goods" db="oracle" logEnable="true">
 		<fields>
 			<field name="id" alias="key" type="long" primaryKey="true"/>
 			<field name="name"/>
@@ -8,7 +8,7 @@
 		</fields>
 	</source>
 	<!-- 
-	<source name="com.linkedin.events.example.book.Book" id="102" table="book" db="oracle">
+	<source name="com.linkedin.events.example.book.Book" id="102" table="book" db="oracle" logEnable="true">
 		<fields>
 			<field name="id" type="long" primaryKey="true"/>
 			<field name="txn" type="long"/>

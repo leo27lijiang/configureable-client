@@ -24,6 +24,11 @@ public interface ConsumeUnit {
 	 */
 	public void setSource(Source source);
 	/**
+	 * 是否开启日志输出
+	 * @param logEnable
+	 */
+	public void setLogEnable(boolean logEnable);
+	/**
 	 * 数据ID
 	 * @return
 	 */

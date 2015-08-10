@@ -54,6 +54,8 @@ public abstract class XmlParser {
 			if ("mysql".equals(dbAttr.getText())) {
 				db = Source.MYSQL;
 			}
+			Attribute logEnableAttr = sourceNode.attribute("logEnable");
+			Boolean logEnable = (logEnableAttr != null ? new Boolean(logEnableAttr.getText()) : new Boolean(true));
 			Element fieldsNode = sourceNode.element("fields");
 			if (fieldsNode == null) {
 				throw new RuntimeException("No <fields> found in <source> " + sourceId);
@@ -73,7 +75,7 @@ public abstract class XmlParser {
 				Boolean primaryKey = (fieldPrimaryKeyAttr != null ? new Boolean(fieldPrimaryKeyAttr.getText()) : new Boolean(false));
 				fields.add(new Field(fieldName, type, alias, primaryKey));
 			}
-			sources.add(new Source(sourceName, sourceId, table, db, fields));
+			sources.add(new Source(sourceName, sourceId, table, db, logEnable, fields));
 		}
 		log.info("Parser configure.xml finish.");
 		log.info(sources.toString());

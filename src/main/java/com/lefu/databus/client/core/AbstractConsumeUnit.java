@@ -30,6 +30,7 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	protected Source source;
 	protected String deleteSql = null;
 	protected Field primaryKey;
+	private boolean logEnable = true;
 	
 	public AbstractConsumeUnit() {
 		
@@ -94,8 +95,8 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 				}
 			}
 			int result = pstmt.executeUpdate();
-			if (result == 0) {
-				LOG.warn("Upsert rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(),
+			if (logEnable) {
+				LOG.info("Upsert affected rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(),
 						record.get(primaryKey.getAlias() != null ? primaryKey.getAlias() : primaryKey.getName()));
 			}
 		} finally {
@@ -111,11 +112,11 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(this.deleteSql);
-			Object value = record.get(primaryKey.getName());
+			Object value = record.get(primaryKey.getAlias() != null ? primaryKey.getAlias() : primaryKey.getName());
 			pstmt.setObject(1, value);
 			int result = pstmt.executeUpdate();
-			if (result != 1) {
-				LOG.warn("Delete rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(), value);
+			if (logEnable) {
+				LOG.info("Delete affected rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(), value);
 			}
 		} finally {
 			if (pstmt != null) {
@@ -137,4 +138,14 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	 * @return
 	 */
 	protected abstract List<Pair> getParams(GenericRecord record);
+
+	public boolean isLogEnable() {
+		return logEnable;
+	}
+	
+	@Override
+	public void setLogEnable(boolean logEnable) {
+		this.logEnable = logEnable;
+	}
+	
 }

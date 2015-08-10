@@ -35,14 +35,13 @@ public class Field {
 	public void setAlias(String alias) {
 		this.alias = alias;
 	}
-
 	public Boolean getPrimaryKey() {
 		return primaryKey;
 	}
 	public void setPrimaryKey(Boolean primaryKey) {
 		this.primaryKey = primaryKey;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

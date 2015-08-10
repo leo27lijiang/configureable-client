@@ -15,18 +15,20 @@ public class Source {
 	private String name;
 	private Integer id;
 	private String table;
-	private int db;
+	private Integer db;
+	private Boolean logEnable = true;
 	private List<Field> fields;
 	
 	public Source() {
 		
 	}
 	
-	public Source(String name, Integer id, String table, int db, List<Field> fields) {
+	public Source(String name, Integer id, String table, int db, Boolean logEnable, List<Field> fields) {
 		this.name = name;
 		this.id = id;
 		this.table = table;
 		this.db = db;
+		this.logEnable = logEnable;
 		this.fields = fields;
 	}
 	
@@ -48,10 +50,16 @@ public class Source {
 	public void setTable(String table) {
 		this.table = table;
 	}
-	public int getDb() {
+	public Integer getDb() {
 		return db;
 	}
-	public void setDb(int db) {
+	public Boolean getLogEnable() {
+		return logEnable;
+	}
+	public void setLogEnable(Boolean logEnable) {
+		this.logEnable = logEnable;
+	}
+	public void setDb(Integer db) {
 		this.db = db;
 	}
 	public List<Field> getFields() {
@@ -69,6 +77,7 @@ public class Source {
 		sb.append("id=" + this.id + ",");
 		sb.append("table=" + this.table + ",");
 		sb.append("db=" + this.db + ",");
+		sb.append("logEnable=" + this.logEnable + ",");
 		sb.append("fields=" + this.fields.toString());
 		sb.append("}");
 		return sb.toString();

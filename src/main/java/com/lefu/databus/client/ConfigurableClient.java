@@ -40,6 +40,7 @@ public class ConfigurableClient {
 				}
 				unit.setDataSource(getDataSource());
 				unit.setSource(s);
+				unit.setLogEnable(s.getLogEnable());
 				dispatcher.put(s.getId(),  unit);
 			}
 			Properties props = new Properties();
