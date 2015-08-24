@@ -3,7 +3,6 @@ package com.lefu.databus.client.util;
 import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,9 +98,12 @@ public class VariableUtil {
 			return (value instanceof Float) ? value : Float.parseFloat(value.toString());
 		} else if (type.equals(Boolean.class.getName()) || type.equals("boolean")) {
 			return (value instanceof Boolean) ? value : Boolean.parseBoolean(value.toString());
-		} else if (type.equals(Date.class.getName())) {
+		} else if (type.equals(java.util.Date.class.getName())) {
 			Long time = (Long) value;
-			return new Date(time);
+			return new java.util.Date(time);
+		} else if (type.equals(java.sql.Date.class.getName())) {
+			Long time = (Long) value;
+			return new java.sql.Date(time);
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return (value instanceof Byte) ? value : Byte.parseByte(value.toString());
 		} else if (type.equals(BigDecimal.class.getName())) {
@@ -131,7 +133,7 @@ public class VariableUtil {
 			return Types.FLOAT;
 		} else if (type.equals(Boolean.class.getName()) || type.equals("boolean")) {
 			return Types.BOOLEAN;
-		} else if (type.equals(Date.class.getName())) {
+		} else if (type.equals(java.sql.Date.class.getName()) || type.equals(java.util.Date.class.getName())) {
 			return Types.DATE;
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return Types.BIT;
