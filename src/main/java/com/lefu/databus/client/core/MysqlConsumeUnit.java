@@ -2,12 +2,13 @@ package com.lefu.databus.client.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.avro.generic.GenericRecord;
+import javax.sql.DataSource;
 
 import com.lefu.databus.client.Pair;
-import com.lefu.databus.client.util.VariableUtil;
 import com.lefu.databus.client.xml.beans.Field;
+import com.lefu.databus.client.xml.beans.Source;
 
 public class MysqlConsumeUnit extends AbstractConsumeUnit {
 	/**
@@ -21,6 +22,10 @@ public class MysqlConsumeUnit extends AbstractConsumeUnit {
 	
 	public MysqlConsumeUnit() {
 		
+	}
+	
+	public MysqlConsumeUnit(DataSource dataSource, Source source) {
+		super(dataSource, source);
 	}
 	
 	@Override
@@ -42,10 +47,10 @@ public class MysqlConsumeUnit extends AbstractConsumeUnit {
 	}
 
 	@Override
-	protected List<Pair> getParams(GenericRecord record) {
+	protected List<Pair> getParams(Map<String, Object> rawValues) {
 		List<Pair> pairs = new ArrayList<Pair>();
 		for (Field field : this.source.getFields()) {
-			Object value = VariableUtil.getRecordValue(field, record);
+			Object value = rawValues.get(field.getName());
 			pairs.add(new Pair(field, value));
 		}
 		return pairs;

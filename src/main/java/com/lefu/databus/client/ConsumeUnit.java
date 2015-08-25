@@ -1,8 +1,8 @@
 package com.lefu.databus.client;
 
-import javax.sql.DataSource;
+import java.util.Map;
 
-import org.apache.avro.generic.GenericRecord;
+import javax.sql.DataSource;
 
 import com.lefu.databus.client.xml.beans.Source;
 import com.linkedin.databus.core.DbusEvent;
@@ -14,20 +14,15 @@ import com.linkedin.databus.core.DbusEvent;
  */
 public interface ConsumeUnit {
 	/**
-	 * 注入数据源
-	 * @param dataSource
+	 * 
+	 * @return
 	 */
-	public void setDataSource(DataSource dataSource);
+	public DataSource getDataSource();
 	/**
-	 * 注入源配置
-	 * @param source
+	 * 
+	 * @return
 	 */
-	public void setSource(Source source);
-	/**
-	 * 是否开启日志输出
-	 * @param logEnable
-	 */
-	public void setLogEnable(boolean logEnable);
+	public Source getSource();
 	/**
 	 * 数据ID
 	 * @return
@@ -36,8 +31,8 @@ public interface ConsumeUnit {
 	/**
 	 * 执行导入逻辑
 	 * @param event
-	 * @param record
+	 * @param rawValues 根据field描述转换为java对象类型
 	 * @throws Exception
 	 */
-	public void execute(DbusEvent event, GenericRecord record) throws Exception;
+	public void execute(DbusEvent event, Map<String, Object> rawValues) throws Exception;
 }

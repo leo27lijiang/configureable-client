@@ -1,15 +1,14 @@
 package com.lefu.databus.client.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avro.generic.GenericRecord;
+import javax.sql.DataSource;
 
 import com.lefu.databus.client.Pair;
-import com.lefu.databus.client.util.VariableUtil;
 import com.lefu.databus.client.xml.beans.Field;
+import com.lefu.databus.client.xml.beans.Source;
 
 /**
  * Oracle Merge
@@ -29,6 +28,10 @@ public class OracleConsumeUnit extends AbstractConsumeUnit {
 	
 	public OracleConsumeUnit() {
 		
+	}
+	
+	public OracleConsumeUnit(DataSource dataSource, Source source) {
+		super(dataSource, source);
 	}
 	
 	@Override
@@ -64,12 +67,7 @@ public class OracleConsumeUnit extends AbstractConsumeUnit {
 	}
 	
 	@Override
-	protected List<Pair> getParams(GenericRecord record) {
-		Map<String, Object> rawValues = new HashMap<String, Object>();
-		for (Field field : this.source.getFields()) {
-			Object value = VariableUtil.getRecordValue(field, record);
-			rawValues.put(field.getName(), value);
-		}
+	protected List<Pair> getParams(Map<String, Object> rawValues) {
 		List<Pair> pairs = new ArrayList<Pair>();
 		pairs.add(new Pair(this.primaryKey, rawValues.get(this.primaryKey.getName())));// %2 primary key
 		for (Field field : this.source.getFields()) {//merge_update

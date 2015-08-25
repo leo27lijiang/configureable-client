@@ -34,13 +34,10 @@ public class ConfigurableClient {
 			for (Source s : sources) {
 				ConsumeUnit unit = null;
 				if (s.getDb() == Source.ORACLE) {
-					unit = new OracleConsumeUnit();
+					unit = new OracleConsumeUnit(getDataSource(), s);
 				} else {
-					unit = new MysqlConsumeUnit();
+					unit = new MysqlConsumeUnit(getDataSource(), s);
 				}
-				unit.setDataSource(getDataSource());
-				unit.setSource(s);
-				unit.setLogEnable(s.getLogEnable());
 				dispatcher.put(s.getId(),  unit);
 			}
 			Properties props = new Properties();

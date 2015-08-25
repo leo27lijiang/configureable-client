@@ -3,10 +3,10 @@ package com.lefu.databus.client.core;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.avro.generic.GenericRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,6 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	protected Source source;
 	protected String deleteSql = null;
 	protected Field primaryKey;
-	private boolean logEnable = true;
 	
 	public AbstractConsumeUnit() {
 		
@@ -42,11 +41,19 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	}
 	
 	@Override
+	public DataSource getDataSource() {
+		return this.dataSource;
+	}
+	
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-
+	
 	@Override
+	public Source getSource() {
+		return this.source;
+	}
+	
 	public void setSource(Source source) {
 		this.source = source;
 		for (Field field : source.getFields()) {
@@ -71,20 +78,20 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	}
 
 	@Override
-	public void execute(DbusEvent event, GenericRecord record) throws Exception {
+	public void execute(DbusEvent event, Map<String, Object> rawValues) throws Exception {
 		if (event.getOpcode().equals(DbusOpcode.UPSERT)) {
-			executeUpsert(record);
+			executeUpsert(rawValues);
 		} else {
-			executeDelete(record);
+			executeDelete(rawValues);
 		}
 	}
 	
-	private void executeUpsert(GenericRecord record) throws Exception {
+	private void executeUpsert(Map<String, Object> rawValues) throws Exception {
 		Connection conn = this.dataSource.getConnection();
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(getUpsertSql());
-			List<Pair> params = getParams(record);
+			List<Pair> params = getParams(rawValues);
 			for (int i = 0; i < params.size(); i++) {
 				int position = i + 1;
 				Pair pair = params.get(i);
@@ -95,10 +102,14 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 				}
 			}
 			int result = pstmt.executeUpdate();
-			if (logEnable) {
+			if (this.source.getLogEnable()) {
 				LOG.info("Upsert affected rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(),
-						record.get(primaryKey.getAlias() != null ? primaryKey.getAlias() : primaryKey.getName()));
+						rawValues.get(primaryKey.getName()));
 			}
+		} catch(Exception e) {
+			LOG.error("Executing upsert error in {} PK[{}={}]", this.source.getName(), primaryKey.getName(),
+					rawValues.get(primaryKey.getName()));
+			throw e;
 		} finally {
 			if (pstmt != null) {
 				pstmt.close();
@@ -107,17 +118,21 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 		}
 	}
 	
-	private void executeDelete(GenericRecord record) throws Exception {
+	private void executeDelete(Map<String, Object> rawValues) throws Exception {
 		Connection conn = this.dataSource.getConnection();
 		PreparedStatement pstmt = null;
 		try {
 			pstmt = conn.prepareStatement(this.deleteSql);
-			Object value = record.get(primaryKey.getAlias() != null ? primaryKey.getAlias() : primaryKey.getName());
+			Object value = rawValues.get(primaryKey.getName());
 			pstmt.setObject(1, value);
 			int result = pstmt.executeUpdate();
-			if (logEnable) {
+			if (this.source.getLogEnable()) {
 				LOG.info("Delete affected rows {} in source {} with PK[{}={}]", result, this.source.getName(), primaryKey.getName(), value);
 			}
+		} catch (Exception e) {
+			LOG.error("Executing delete error in {} PK[{}={}]", this.source.getName(), primaryKey.getName(),
+					rawValues.get(primaryKey.getName()));
+			throw e;
 		} finally {
 			if (pstmt != null) {
 				pstmt.close();
@@ -134,18 +149,9 @@ public abstract class AbstractConsumeUnit implements ConsumeUnit {
 	
 	/**
 	 * 根据 {@link #getUpsertSql()} 获取排序好的实际参数
-	 * @param record
+	 * @param rawValues
 	 * @return
 	 */
-	protected abstract List<Pair> getParams(GenericRecord record);
+	protected abstract List<Pair> getParams(Map<String, Object> rawValues);
 
-	public boolean isLogEnable() {
-		return logEnable;
-	}
-	
-	@Override
-	public void setLogEnable(boolean logEnable) {
-		this.logEnable = logEnable;
-	}
-	
 }

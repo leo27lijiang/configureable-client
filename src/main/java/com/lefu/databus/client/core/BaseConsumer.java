@@ -1,5 +1,6 @@
 package com.lefu.databus.client.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avro.generic.GenericRecord;
@@ -7,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lefu.databus.client.ConsumeUnit;
+import com.lefu.databus.client.util.VariableUtil;
+import com.lefu.databus.client.xml.beans.Field;
 import com.linkedin.databus.client.consumer.AbstractDatabusCombinedConsumer;
 import com.linkedin.databus.client.pub.ConsumerCallbackResult;
 import com.linkedin.databus.client.pub.DbusEventDecoder;
@@ -41,7 +44,12 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 				log.warn("SourceID {} consumer not found", event.getSourceId());
 				return ConsumerCallbackResult.ERROR_FATAL;
 			}
-			unit.execute(event, decodedEvent);
+			Map<String, Object> rawValues = new HashMap<String, Object>();
+			for (Field field : unit.getSource().getFields()) {
+				Object value = VariableUtil.getRecordValue(field, decodedEvent);
+				rawValues.put(field.getName(), value);
+			}
+			unit.execute(event, rawValues);
 			return ConsumerCallbackResult.SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();
