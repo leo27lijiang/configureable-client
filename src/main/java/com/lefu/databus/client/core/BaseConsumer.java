@@ -1,5 +1,7 @@
 package com.lefu.databus.client.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,8 +18,16 @@ import com.linkedin.databus.client.pub.DbusEventDecoder;
 import com.linkedin.databus.core.DbusEvent;
 
 public class BaseConsumer extends AbstractDatabusCombinedConsumer {
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private static final Logger log = LoggerFactory.getLogger(BaseConsumer.class);
 	private Map<Integer,ConsumeUnit> dispatcher;
+	private static String ERROR_DIR;//Save error state for monitor system
+	private static File errorDir;
+	
+	static {
+		ERROR_DIR = System.getProperty("configurable.error.dir", "var");
+		errorDir = new File(ERROR_DIR);
+		log.info("Setting error state directory {}", errorDir.getAbsolutePath());
+	}
 	
 	public BaseConsumer() {
 		
@@ -53,6 +63,17 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 			return ConsumerCallbackResult.SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		//Create an empty file flag an error happened
+		String fileName = errorDir.getAbsolutePath() + File.pathSeparator + String.valueOf(event.getSourceId());
+		File file = new File(fileName);
+		if (!file.exists()) {
+			try {
+				boolean created = file.createNewFile();
+				if(!created) log.error("Save error state fail, can not create state file {}", fileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return ConsumerCallbackResult.ERROR;
 	}
