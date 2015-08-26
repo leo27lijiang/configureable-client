@@ -35,5 +35,5 @@ main_class="com.lefu.databus.client.ConfigurableClient"
 cmdline="java -cp ${cp} ${java_opts} ${main_class}"
 
 echo $cmdline
-$cmdline 2>&1 > ${output_file} &
+$cmdline >> ${output_file} 2>&1 &
 echo $! > ${pid_file}
