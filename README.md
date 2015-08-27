@@ -10,9 +10,9 @@ configureable-client是Databus( https://github.com/linkedin/databus )统一消�
 在 configure.xml 文件中定义消费的字段即可，区分Oracle和Mysql两种逻辑(Oracle使用Merge into导入，Mysql使用Replace into导入)。
 
 ```
-<source name="com.lefu.boss.goods" id="40" table="goods" db="oracle">
+<source name="com.lefu.boss.goods" id="40" table="goods" db="oracle" logEnable="true">
 	<fields>
-		<field name="id" type="long" primaryKey="true"/>
+		<field name="id" alias="key" type="long" primaryKey="true"/>
 		<field name="name"/>
 		<field name="price" type="double"/>
 	</fields>
@@ -24,6 +24,8 @@ id:对应到relay配置文件中的数据源ID
 table:目标表名称
 
 db:oracle/mysql
+
+logEnable:是否输出SQL更新日志
 
 field中必须指定一个主键，并且唯一
 
