@@ -65,7 +65,7 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 			e.printStackTrace();
 		}
 		//Create an empty file flag an error happened
-		String fileName = errorDir.getAbsolutePath() + File.pathSeparator + String.valueOf(event.getSourceId());
+		String fileName = errorDir.getAbsolutePath() + File.separator + String.valueOf(event.getSourceId());
 		File file = new File(fileName);
 		if (!file.exists()) {
 			try {
