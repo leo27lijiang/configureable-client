@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
 
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.lefu.databus.client.core.BaseConsumer;
 import com.lefu.databus.client.core.MysqlConsumeUnit;
@@ -20,8 +24,10 @@ import com.linkedin.databus.core.util.ConfigLoader;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class ConfigurableClient {
+	private static final Logger log = LoggerFactory.getLogger(ConfigurableClient.class);
 	private static ComboPooledDataSource dataSource;
 	private DatabusHttpClientImpl client;
+	private ExecuteHandler executeHandler;
 	
 	public ConfigurableClient() {
 		
@@ -29,6 +35,18 @@ public class ConfigurableClient {
 	
 	public void start() {
 		try {
+			List<ExecuteHandler> executeHandlers = new ArrayList<ExecuteHandler>();
+			ServiceLoader<ExecuteHandler> serviceLoader = ServiceLoader.load(ExecuteHandler.class);
+			for (ExecuteHandler handler : serviceLoader) {
+				log.info("Found service {}", handler.getClass().getName());
+				executeHandlers.add(handler);
+			}
+			if (executeHandlers.size() > 1) {
+				throw new RuntimeException("Found multiService in classpath");
+			}
+			if (!executeHandlers.isEmpty()) {
+				executeHandler = executeHandlers.get(0);
+			}
 			List<Source> sources = XmlParser.parser();
 			Map<Integer, ConsumeUnit> dispatcher = new HashMap<Integer, ConsumeUnit>();
 			for (Source s : sources) {
@@ -57,13 +75,14 @@ public class ConfigurableClient {
 			schemas.toArray(rawSchemas);
 			BaseConsumer consumer = new BaseConsumer();
 			consumer.setDispatcher(dispatcher);
+			consumer.setExecuteHandler(executeHandler);
 		    client.registerDatabusStreamListener(consumer, null, rawSchemas);
 		    client.registerDatabusBootstrapListener(consumer, null, rawSchemas);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		if (client != null) {
-			Runtime.getRuntime().addShutdownHook(new ShutdownHook(dataSource, client));
+			Runtime.getRuntime().addShutdownHook(new ShutdownHook(dataSource, client, executeHandler));
 			client.startAndBlock();
 		}
 	}

@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lefu.databus.client.ConsumeUnit;
+import com.lefu.databus.client.ExecuteHandler;
 import com.lefu.databus.client.util.VariableUtil;
 import com.lefu.databus.client.xml.beans.Field;
 import com.linkedin.databus.client.consumer.AbstractDatabusCombinedConsumer;
@@ -19,9 +20,10 @@ import com.linkedin.databus.core.DbusEvent;
 
 public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 	private static final Logger log = LoggerFactory.getLogger(BaseConsumer.class);
-	private Map<Integer,ConsumeUnit> dispatcher;
 	private static String ERROR_DIR;//Save error state for monitor system
 	private static File errorDir;
+	private Map<Integer,ConsumeUnit> dispatcher;
+	private ExecuteHandler executeHandler;
 	
 	static {
 		ERROR_DIR = System.getProperty("configurable.error.dir", "var");
@@ -59,7 +61,21 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 				Object value = VariableUtil.getRecordValue(field, decodedEvent);
 				rawValues.put(field.getName(), value);
 			}
+			if (this.executeHandler != null && this.executeHandler.isRelatedSource(event.getSourceId())) {
+				try {
+					this.executeHandler.before(event, rawValues);
+				} catch (Throwable before) {
+					before.printStackTrace();
+				}
+			}
 			unit.execute(event, rawValues);
+			if (this.executeHandler != null && this.executeHandler.isRelatedSource(event.getSourceId())) {
+				try {
+					this.executeHandler.after(event, rawValues);
+				} catch (Throwable after) {
+					after.printStackTrace();
+				}
+			}
 			return ConsumerCallbackResult.SUCCESS;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,5 +96,9 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 
 	public void setDispatcher(Map<Integer, ConsumeUnit> dispatcher) {
 		this.dispatcher = dispatcher;
+	}
+
+	public void setExecuteHandler(ExecuteHandler executeHandler) {
+		this.executeHandler = executeHandler;
 	}
 }
