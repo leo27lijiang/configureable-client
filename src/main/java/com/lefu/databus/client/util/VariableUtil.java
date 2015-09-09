@@ -104,6 +104,9 @@ public class VariableUtil {
 		} else if (type.equals(java.sql.Date.class.getName())) {
 			Long time = (Long) value;
 			return new java.sql.Date(time);
+		} else if (type.equals(java.sql.Timestamp.class.getName())) {
+			Long time = (Long) value;
+			return new java.sql.Timestamp(time);
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return (value instanceof Byte) ? value : Byte.parseByte(value.toString());
 		} else if (type.equals(BigDecimal.class.getName())) {
