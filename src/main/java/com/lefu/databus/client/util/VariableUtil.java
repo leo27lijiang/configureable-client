@@ -138,6 +138,8 @@ public class VariableUtil {
 			return Types.BOOLEAN;
 		} else if (type.equals(java.sql.Date.class.getName()) || type.equals(java.util.Date.class.getName())) {
 			return Types.DATE;
+		} else if (type.equals(java.sql.Timestamp.class.getName())) {
+			return Types.TIMESTAMP;
 		} else if (type.equals(Byte.class.getName()) || type.equals("byte")) {
 			return Types.BIT;
 		} else if (type.equals(BigDecimal.class.getName())) {
