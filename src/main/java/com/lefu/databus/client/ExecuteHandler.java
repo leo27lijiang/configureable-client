@@ -27,6 +27,13 @@ public interface ExecuteHandler {
 	 */
 	public void init(List<Source> sources, DataSource dataSource);
 	/**
+	 * 执行过滤
+	 * @param event
+	 * @param rawValues
+	 * @return <code>true</code> 过滤此次操作 <code>false</code> 不过滤
+	 */
+	public boolean doFilter(DbusEvent event, Map<String, Object> rawValues);
+	/**
 	 * 事件入库之前
 	 * @param event
 	 * @param rawValues

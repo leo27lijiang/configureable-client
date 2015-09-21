@@ -58,6 +58,7 @@ public class ConfigurableClient {
 				}
 				dispatcher.put(s.getId(),  unit);
 			}
+			if (executeHandler != null) executeHandler.init(sources, getDataSource());
 			Properties props = new Properties();
 			props.load(this.getClass().getClassLoader().getResourceAsStream("client.properties"));
 			DatabusHttpClientImpl.Config configBuilder = new DatabusHttpClientImpl.Config();

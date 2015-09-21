@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.generic.GenericData.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,30 +50,56 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 	private ConsumerCallbackResult processEvent(DbusEvent event,
 			DbusEventDecoder eventDecoder) {
 		try {
-			GenericRecord decodedEvent = eventDecoder.getGenericRecord(event, null);
+			Record decodedEvent = (Record)eventDecoder.getGenericRecord(event, null);
 			ConsumeUnit unit = this.dispatcher.get(event.getSourceId());
 			if (unit == null) {
 				log.warn("SourceID {} consumer not found", event.getSourceId());
 				return ConsumerCallbackResult.ERROR_FATAL;
 			}
 			Map<String, Object> rawValues = new HashMap<String, Object>();
-			for (Field field : unit.getSource().getFields()) {
-				Object value = VariableUtil.getRecordValue(field, decodedEvent);
-				rawValues.put(field.getName(), value);
+			for (org.apache.avro.Schema.Field f : decodedEvent.getSchema().getFields()) {// Get all the values
+				boolean isMatched = false;
+				for (Field field : unit.getSource().getFields()) {
+					if (f.name().equals(field.getName()) || f.name().equals(field.getAlias())) {
+						Object value = VariableUtil.getRecordValue(field, decodedEvent);
+						rawValues.put(field.getName(), value);
+						isMatched = true;
+						break;
+					}
+				}
+				if (!isMatched) {
+					rawValues.put(f.name(), decodedEvent.get(f.name()));
+				}
 			}
+			boolean isRelated = false;
+			boolean isFiltered = false;
 			if (this.executeHandler != null && this.executeHandler.isRelatedSource(event.getSourceId())) {
+				isRelated = true;
+			}
+			if (isRelated) {
+				try {
+					isFiltered = this.executeHandler.doFilter(event, rawValues);
+				} catch (Throwable f) {
+					f.printStackTrace();
+				}
+			}
+			if (isRelated) {
 				try {
 					this.executeHandler.before(event, rawValues);
 				} catch (Throwable before) {
 					before.printStackTrace();
 				}
 			}
-			unit.execute(event, rawValues);
-			if (this.executeHandler != null && this.executeHandler.isRelatedSource(event.getSourceId())) {
-				try {
-					this.executeHandler.after(event, rawValues);
-				} catch (Throwable after) {
-					after.printStackTrace();
+			if (isFiltered) {
+				log.info("SourceID {} was filtered", event.getSourceId());
+			} else {
+				unit.execute(event, rawValues);
+				if (isRelated) {
+					try {
+						this.executeHandler.after(event, rawValues);
+					} catch (Throwable after) {
+						after.printStackTrace();
+					}
 				}
 			}
 			return ConsumerCallbackResult.SUCCESS;
@@ -86,7 +112,7 @@ public class BaseConsumer extends AbstractDatabusCombinedConsumer {
 		if (!file.exists()) {
 			try {
 				boolean created = file.createNewFile();
-				if(!created) log.error("Save error state fail, can not create state file {}", fileName);
+				if(!created) log.error("Save error state failed, can not create state file {}", fileName);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
